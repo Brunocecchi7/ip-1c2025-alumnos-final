@@ -1,0 +1,124 @@
+{% extends 'header.html' %} {% block content %}
+<main>
+    <h1 class="text-center">Pokedex Bruno Cecchi</h1>
+
+    <div class="d-flex justify-content-center" style="margin-bottom: 1%">
+        <!-- Buscador del sitio -->
+        <form class="d-flex" action="{% url 'buscar' %}" method="POST">
+            {% csrf_token %}
+            <input class="form-control me-2" type="search" name="query" placeholder="Pikachu, Charizard, Ditto" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Buscar</button>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-center gap-1 mb-3">
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="fire">
+            <button type="submit" class="btn btn-danger">Fire</button>
+        </form>
+
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="water">
+            <button type="submit" class="btn btn-primary">Water</button>
+        </form>
+
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="grass">
+            <button type="submit" class="btn btn-success">Grass</button>
+        </form>
+
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="Flying">
+            <button type="submit" class="btn btn-warning text-white">Flying</button>
+        </form>
+
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="poison">
+            <button type="submit" class="btn btn-warning text-white">Poison</button>
+        </form>
+
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="bug">
+            <button type="submit" class="btn btn-warning text-white">Bug</button>
+        </form>
+
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="ground">
+            <button type="submit" class="btn btn-warning text-white">Ground</button>
+        </form>
+
+        <form method="post" action="{% url 'filter_by_type' %}">
+            {% csrf_token %}
+            <input type="hidden" name="type" value="normal">
+            <button type="submit" class="btn btn-warning text-white">Normal</button>
+        </form>
+    </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% if images|length == 0 %}
+        <h2 class="text-center">La búsqueda no arrojó resultados...</h2>
+        {% else %} {% for img in images %}
+        <div class="col">
+            <!-- evaluar si la imagen pertenece al tipo fuego, agua o planta -->
+            {% if 'grass' in img.types %}
+                <div class="card border-success mb-3 ms-5" style="max-width: 540px; border-width: 5px;">
+            {% elif 'fire' in img.types %}
+                <div class="card border-danger mb-3 ms-5" style="max-width: 540px; border-width: 5px;">
+            {% elif 'water' in img.types %}
+                <div class="card border-primary mb-3 ms-5" style="max-width: 540px; border-width: 5px;">
+            {% else %}
+                <div class="card border-warning mb-3 ms-5" style="max-width: 540px; border-width: 5px;">
+            {% endif %}
+                 <div class="row g-0">
+                     <div class="col-md-4">
+                         <img src="{{ img.image }}" class="card-img-top"alt="imagen">
+                     </div>
+
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h3 class="card-title">{{ img.name|title }} #{{ img.id }} <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="Master Ball"></h3>
+                            <p class="card-text">
+                                <div class="d-flex gap-1 flex-wrap mb-2">
+                                    {% for poketype in img.types %}
+                                    <span class="btn btn-light btn-sm"><strong><em>{{ poketype|title }}</em></strong></span>
+                                    {% endfor %} 
+                                </div>
+                            </p>
+                            <p class="card-text"><small class="text-body-secondary">Altura: {{ img.height }}</small></p>
+                            <p class="card-text"><small class="text-body-secondary">Peso: {{ img.weight }}</small></p>
+                            <p class="card-text"><small class="text-body-secondary">Nivel de experiencia base: {{ img.base }}</small></p>
+                        </div>
+                        {% if request.user.is_authenticated %}
+                        <div class="card-footer text-center">
+                            <form method="post" action="{% url 'agregar-favorito' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ img.id }}">
+                                <input type="hidden" name="name" value="{{ img.name }}">
+                                <input type="hidden" name="height" value="{{ img.height }}">
+                                <input type="hidden" name="weight" value="{{ img.weight }}">
+                                <input type="hidden" name="base" value="{{ img.base }}">
+                                <input type="hidden" name="types" value="{{ img.types }}">
+                                <input type="hidden" name="image" value="{{ img.image }}"> 
+                                {% if img in favourite_list %}
+                                <button type="submit" class="btn btn-primary btn-sm float-left" style="color:white" disabled>✔️ Favoritos</button> 
+                                {% else %}
+                                <button type="submit" class="btn btn-primary btn-sm float-left" style="color:white">Guardar en favoritos ❤️</button> 
+                                {% endif %}
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %} {% endif %}
+    </div>
+</main>
+{% endblock %}
